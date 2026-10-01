@@ -1,0 +1,67 @@
+# Every merge to main is built on Apify under the `beta` tag, so a release
+# candidate can be run on the platform before it is promoted to production.
+# `latest` is untouched: nothing here reaches users of the Actor.
+name: Build beta
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: apify-beta
+  cancel-in-progress: false
+
+jobs:
+  test:
+    uses: ./.github/workflows/tests.yml
+
+  build:
+    name: Push & build as beta
+    needs: test
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Check the APIFY_TOKEN secret is set
+        env:
+          APIFY_TOKEN: ${{ secrets.APIFY_TOKEN }}
+        run: |
+          if [ -z "$APIFY_TOKEN" ]; then
+            echo "::error::Repository secret APIFY_TOKEN is missing or empty. Add it under Settings > Secrets and variables > Actions > Secrets, named exactly APIFY_TOKEN."
+            exit 1
+          fi
+
+      # Same version line (1.0) as production, tagged `beta` instead of
+      # `latest`. Run it with build=beta in Console or the API.
+      # Local composite action rather than apify/push-actor-action: that one
+      # exposes no `--force`, so whichever of beta/deploy pushed second failed
+      # with "modified there since modified locally". The local copy is that
+      # action's v1.1.4 script (which carries the apify-cli 1.8.0 `--json`
+      # reshape fix, apify/apify-cli#1199) plus `--force`.
+      - name: Push Actor to Apify as beta
+        id: push
+        uses: ./.github/actions/push-actor
+        with:
+          token: ${{ secrets.APIFY_TOKEN }}
+          build-tag: beta
+
+      - name: Summarise the build
+        if: always()
+        env:
+          BUILD_ID: ${{ steps.push.outputs.build-id }}
+          BUILD_NUMBER: ${{ steps.push.outputs.build-number }}
+          BUILD_STATUS: ${{ steps.push.outputs.build-status }}
+        run: |
+          {
+            echo "### Apify beta build ${BUILD_NUMBER:-(not started)}"
+            echo
+            echo "| | |"
+            echo "|---|---|"
+            echo "| Status | \`${BUILD_STATUS:-N/A}\` |"
+            echo "| Build ID | \`${BUILD_ID:-N/A}\` |"
+            echo "| Build tag | \`beta\` |"
+            echo "| Commit | \`${GITHUB_SHA:0:7}\` |"
+          } >> "$GITHUB_STEP_SUMMARY"

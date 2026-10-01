@@ -1,0 +1,84 @@
+{
+  "title": "Flashscore Match Stats Scraper",
+  "type": "object",
+  "schemaVersion": 1,
+  "properties": {
+    "matchUrls": {
+      "title": "Match URLs or ids",
+      "type": "array",
+      "description": "Flashscore match pages in any URL form (https://www.flashscore.com/match/j52jHsN8/, the long .../match/football/brighton-2XrRecc3/arsenal-hA1Zm19f/?mid=j52jHsN8 form, or any Flashscore edition), or bare 8-character match ids.",
+      "editor": "stringList",
+      "prefill": ["https://www.flashscore.com/match/j52jHsN8/"],
+      "example": ["https://www.flashscore.com/match/j52jHsN8/", "pnOhtTOH"],
+      "sectionCaption": "Which matches",
+      "sectionDescription": "Any mix of single matches, leagues and teams. Leagues and teams give their newest finished matches; set how many below."
+    },
+    "leagueUrls": {
+      "title": "League or season URLs",
+      "type": "array",
+      "description": "A league page for the current season (https://www.flashscore.com/football/england/premier-league/) or a past season (.../premier-league-2024-2025/). Sub-pages such as .../results/ work too.",
+      "editor": "stringList",
+      "example": ["https://www.flashscore.com/football/england/premier-league/"]
+    },
+    "teamUrls": {
+      "title": "Team URLs",
+      "type": "array",
+      "description": "A team page, e.g. https://www.flashscore.com/team/arsenal/hA1Zm19f/. Gives the team's newest finished matches in every competition.",
+      "editor": "stringList",
+      "example": ["https://www.flashscore.com/team/arsenal/hA1Zm19f/"]
+    },
+    "maxMatchesPerSource": {
+      "title": "Matches per league or team",
+      "type": "integer",
+      "description": "Newest finished matches to scrape from each league or team URL. 0 = every finished match (a whole Premier League season is 380).",
+      "minimum": 0,
+      "default": 10
+    },
+    "dateFrom": {
+      "title": "From date",
+      "type": "string",
+      "description": "Only league and team matches played on or after this day (UTC), e.g. 2026-08-01.",
+      "editor": "datepicker"
+    },
+    "dateTo": {
+      "title": "To date",
+      "type": "string",
+      "description": "Only league and team matches played on or before this day (UTC).",
+      "editor": "datepicker"
+    },
+    "include": {
+      "title": "Data to collect",
+      "type": "array",
+      "description": "Every match row has the score, period scores, incidents (goals, cards, substitutions), referee, venue and attendance. Team statistics: every stat per period (xG, possession, shots ...). Lineups: one row per player with shirt number, position, rating and substitutions, plus formations and coaches. Player stats: about 100 stats per footballer (xG, xA, passes, duels, tackles ...) or the box score in basketball and hockey, added to the player rows. Missing players: injured and suspended players. Momentum: per-minute pressure graph (football). Commentary: the full text commentary. Head-to-head: both teams' recent matches and their previous meetings.",
+      "editor": "select",
+      "items": {
+        "type": "string",
+        "enum": ["statistics", "lineups", "playerStats", "missingPlayers", "momentum", "commentary", "headToHead"],
+        "enumTitles": ["Team statistics", "Lineups", "Player stats", "Missing players", "Momentum", "Commentary", "Head-to-head"]
+      },
+      "default": ["statistics", "lineups", "playerStats", "missingPlayers"],
+      "sectionCaption": "What to collect"
+    },
+    "includeUnusedSubstitutes": {
+      "title": "Include unused substitutes",
+      "type": "boolean",
+      "description": "Also add a player row for substitutes who did not come on.",
+      "default": false
+    },
+    "maxItems": {
+      "title": "Max rows",
+      "type": "integer",
+      "description": "Stop after this many dataset rows in total (match rows plus player rows).",
+      "minimum": 1,
+      "default": 10000,
+      "sectionCaption": "Limits"
+    },
+    "proxyConfiguration": {
+      "title": "Proxy",
+      "type": "object",
+      "description": "Not needed: Flashscore does not block by IP. The Actor escalates to Apify proxies automatically if it is ever refused.",
+      "editor": "proxy",
+      "default": { "useApifyProxy": false }
+    }
+  }
+}

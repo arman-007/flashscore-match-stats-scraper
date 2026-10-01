@@ -1,0 +1,73 @@
+# Production release: every push or merge to `production` runs the full test
+# suite and, only if it passes, uploads the source to Apify, builds it there
+# and moves the `latest` build tag to that build.
+name: Deploy to Apify
+
+on:
+  push:
+    branches: [production]
+  # Lets you re-deploy the current production branch without an empty commit,
+  # e.g. after a build failed for a reason outside the repo.
+  workflow_dispatch:
+
+# Never build twice at once: two overlapping pushes would race for the `latest`
+# tag and the slower build would silently win.
+concurrency:
+  group: apify-deploy
+  cancel-in-progress: false
+
+jobs:
+  test:
+    uses: ./.github/workflows/tests.yml
+
+  deploy:
+    name: Push & build on Apify
+    needs: test
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - uses: actions/checkout@v7
+
+      # Without this the push step fails deep inside the CLI with an opaque
+      # auth error; this says what to fix and where.
+      - name: Check the APIFY_TOKEN secret is set
+        env:
+          APIFY_TOKEN: ${{ secrets.APIFY_TOKEN }}
+        run: |
+          if [ -z "$APIFY_TOKEN" ]; then
+            echo "::error::Repository secret APIFY_TOKEN is missing or empty. Add it under Settings > Secrets and variables > Actions > Secrets, named exactly APIFY_TOKEN."
+            exit 1
+          fi
+
+      # Uploads the source, builds the Docker image on Apify, waits for the
+      # build to reach a terminal state and fails the job unless it SUCCEEDED.
+      # Actor name, version (1.0) and build tag (latest) all come from
+      # .actor/actor.json, so the repo stays the single source of truth.
+      # Local composite action rather than apify/push-actor-action because that
+      # one cannot pass `--force`, without which this push refuses whenever
+      # `main`'s beta build touched the Actor first -- see the action for the
+      # full explanation.
+      - name: Push Actor to Apify
+        id: push
+        uses: ./.github/actions/push-actor
+        with:
+          token: ${{ secrets.APIFY_TOKEN }}
+
+      - name: Summarise the build
+        if: always()
+        env:
+          BUILD_ID: ${{ steps.push.outputs.build-id }}
+          BUILD_NUMBER: ${{ steps.push.outputs.build-number }}
+          BUILD_STATUS: ${{ steps.push.outputs.build-status }}
+        run: |
+          {
+            echo "### Apify build ${BUILD_NUMBER:-(not started)}"
+            echo
+            echo "| | |"
+            echo "|---|---|"
+            echo "| Status | \`${BUILD_STATUS:-N/A}\` |"
+            echo "| Build ID | \`${BUILD_ID:-N/A}\` |"
+            echo "| Build tag | \`latest\` |"
+            echo "| Commit | \`${GITHUB_SHA:0:7}\` |"
+          } >> "$GITHUB_STEP_SUMMARY"

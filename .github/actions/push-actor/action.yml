@@ -1,0 +1,120 @@
+# Pushes the Actor to Apify and waits for the build to finish.
+#
+# This replaces `apify/push-actor-action`, which is otherwise exactly what we
+# want, for one reason: it exposes no way to pass `--force`, and without it
+# `apify push` refuses whenever the Actor on the platform is newer than the
+# local copy:
+#
+#   Actor ... is already on the platform and was modified there since
+#   modified locally. Skipping push. Use --force to override.
+#
+# That guard protects an interactive developer from clobbering edits made in
+# the Apify Console. In CI it is backwards: `main` pushing the `beta` tag
+# updates the Actor, so the very next `production` push sees a "newer"
+# platform copy and refuses -- two branches of one repo deadlocking each
+# other. The checked-out commit is the source of truth here by definition, so
+# forcing is the correct behaviour, and the only thing it can overwrite is a
+# manual Console edit, which is precisely what a deploy should replace.
+#
+# The push/parse logic below is otherwise a faithful copy of
+# apify/push-actor-action@5cc259c (v1.1.4), including its notes.
+name: 'Push Actor to Apify (forced)'
+description: 'Push and build an Actor on the Apify platform, overriding the platform-newer guard.'
+
+inputs:
+  token:
+    description: 'Apify API token.'
+    required: true
+  build-tag:
+    description: 'Build tag for the successful build. Defaults to the one in .actor/actor.json.'
+    required: false
+    default: ''
+
+outputs:
+  build-id:
+    description: 'ID of the Actor build triggered by the push'
+    value: ${{ steps.push.outputs.build-id }}
+  build-number:
+    description: 'Version number of the Actor build'
+    value: ${{ steps.push.outputs.build-number }}
+  build-status:
+    description: 'Status of the Actor build (e.g. SUCCEEDED, FAILED)'
+    value: ${{ steps.push.outputs.build-status }}
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Set up Apify CLI
+      uses: apify/setup-apify-cli-action@v1
+      with:
+        token: ${{ inputs.token }}
+
+    - name: Push the Actor
+      id: push
+      shell: bash
+      env:
+        INPUT_BUILD_TAG: ${{ inputs.build-tag }}
+      run: |
+        push_args=()
+
+        if [ -n "$INPUT_BUILD_TAG" ]; then
+          push_args+=(--build-tag="$INPUT_BUILD_TAG")
+        fi
+
+        build_json_file=$(mktemp)
+        trap 'rm -f "$build_json_file"' EXIT
+
+        # Write JSON to a temp file instead of capturing in a bash variable
+        # to avoid truncation issues with large outputs (e.g. embedded readmes)
+        #
+        # --wait-for-finish makes `apify push` block until the build reaches a
+        # terminal status. An explicit value (in seconds) is required: the bare
+        # flag is ambiguous to the CLI's argument parser and would swallow the
+        # next positional as its value. 999999s (~11.5 days) far exceeds any
+        # GitHub Actions or Apify build timeout.
+        #
+        # The exit code is the authoritative outcome; the JSON only enriches
+        # the outputs and the error message. `-e` would abort before we could
+        # report anything useful, so capture the code by hand.
+        push_exit_code=0
+        apify push --force --json --wait-for-finish=999999 "${push_args[@]}" \
+          > "$build_json_file" || push_exit_code=$?
+
+        # `apify push --json` printed a flat build object up to CLI 1.7.x and an
+        # {ok, actor, build} envelope since 1.8.0 (apify/apify-cli#1199), so read
+        # both spellings. Fields that resolve to nothing stay empty instead of
+        # leaking the string "null" into the outputs.
+        read_field() {
+          jq -r "($1) // empty" "$build_json_file" 2>/dev/null || true
+        }
+
+        build_id=$(read_field '.build.id // .id')
+        build_number=$(read_field '.build.number // .buildNumber')
+        build_status=$(read_field '.build.status // .status')
+        error_message=$(read_field '.error.message')
+
+        {
+          echo "build-id=$build_id"
+          echo "build-number=$build_number"
+          echo "build-status=$build_status"
+        } >> "$GITHUB_OUTPUT"
+
+        if [ "$push_exit_code" -ne 0 ]; then
+          echo "::error::apify push failed with exit code ${push_exit_code}${build_status:+ (build status: ${build_status})}${error_message:+: ${error_message}}"
+          cat "$build_json_file" >&2
+          exit "$push_exit_code"
+        fi
+
+        # The push itself succeeded, so an unreadable or reshaped payload is a
+        # reporting problem, not a build problem -- warn, but keep the job green.
+        # Failing here is exactly how CLI 1.8.0 turned successful pushes red.
+        if [ -z "$build_status" ]; then
+          echo "::warning::Could not read the build status from 'apify push --json'; trusting its exit code instead. The output format may have changed."
+          cat "$build_json_file" >&2
+          exit 0
+        fi
+
+        if [ "$build_status" != "SUCCEEDED" ]; then
+          echo "::error::Actor build finished with status: $build_status"
+          exit 1
+        fi

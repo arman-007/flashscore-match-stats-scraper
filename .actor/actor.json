@@ -1,0 +1,22 @@
+{
+  "actorSpecification": 1,
+  "name": "flashscore-match-stats-scraper",
+  "title": "Flashscore Match Stats: Player Stats, Lineups, xG",
+  "description": "Scrape Flashscore match details: 100 stats per footballer (xG, xA, passes, duels), box scores for basketball and hockey, lineups with ratings, team stats by period, incidents, referee and attendance. Whole leagues or teams in one run. No API key.",
+  "version": "1.0",
+  "buildTag": "latest",
+  "dockerfile": "../Dockerfile",
+  "readme": "../README.md",
+  "input": "./input_schema.json",
+  "output": "./output_schema.json",
+  "storages": {
+    "dataset": "./dataset_schema.json"
+  },
+  "minMemoryMbytes": 256,
+  "maxMemoryMbytes": 2048,
+  "defaultRunOptions": {
+    "build": "latest",
+    "memoryMbytes": 512,
+    "timeoutSecs": 3600
+  }
+}

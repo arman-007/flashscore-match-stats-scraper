@@ -1,0 +1,112 @@
+# The unit tests run against captured pages, feeds and GraphQL responses, so
+# they stay green through a Flashscore change -- the failure that actually
+# takes this Actor down, because every field depends on an inline JSON object,
+# undocumented text feeds, persisted GraphQL query hashes and a feed-sign
+# header staying put. This workflow is the other half: once a week it calls
+# live Flashscore with the build users are running and fails if the data of
+# three finished matches stops matching.
+name: Canary
+
+on:
+  schedule:
+    # Wednesdays 08:27 UTC. Deliberately off the hour: GitHub's scheduler queues
+    # hardest on :00 and delays runs.
+    - cron: '27 8 * * 3'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  issues: write
+
+concurrency:
+  group: canary
+  cancel-in-progress: false
+
+jobs:
+  canary:
+    name: Call live Flashscore with the latest build
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+
+      # Installs the CLI and runs `apify login -t <token>`. The CLI reads its
+      # token from the keyring or auth file and ignores the APIFY_TOKEN
+      # environment variable, so an explicit login is required.
+      - uses: apify/setup-apify-cli-action@v1
+        with:
+          token: ${{ secrets.APIFY_TOKEN }}
+
+      - name: Run the deployed Actor against live Flashscore
+        id: run
+        run: |
+          set -o pipefail
+          apify call \
+            --build latest \
+            --memory 512 \
+            --timeout 600 \
+            --json \
+            --input-file scripts/canary-input.json > run.json
+          node -e '
+            const fs = require("node:fs");
+            const result = JSON.parse(fs.readFileSync("run.json", "utf8"));
+            fs.appendFileSync(process.env.GITHUB_OUTPUT, `dataset=${result.storage.defaultDatasetId}\n`);
+            fs.appendFileSync(process.env.GITHUB_OUTPUT, `run-url=${result.run.url}\n`);
+            console.log(`Run ${result.run.status}: ${result.run.url}`);
+            if (result.run.status !== "SUCCEEDED") process.exit(1);
+          '
+
+      # A run that finishes green but returns nothing usable is the exact
+      # failure mode this Actor is built to make impossible, so assert on the
+      # data, not just on the exit status.
+      - name: Check the returned data
+        env:
+          DATASET_ID: ${{ steps.run.outputs.dataset }}
+        run: |
+          set -o pipefail
+          apify datasets get-items "$DATASET_ID" --format json | node scripts/canary-check.mjs
+
+      # Email about a failed scheduled run is easy to miss and depends on each
+      # user's notification settings; an issue is durable and notifies watchers.
+      - name: Open or update the canary issue
+        if: failure()
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          RUN_URL: ${{ steps.run.outputs.run-url }}
+          WORKFLOW_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          gh label create canary --description "Automated canary failures" --color B60205 2>/dev/null || true
+
+          body="The weekly canary run failed. For this Actor that usually means one of these:
+
+          1. **The match page changed.** Headers read the \`window.environment\` JSON on /match/j52jHsN8/ (participantsData, header.tournament, common_feed with DA/DB/DC/DE/DF/DX).
+          2. **The summary feed moved.** Incidents, period scores, venue and referee come from \`df_sui_1_{id}\` (AC periods, III/IE/IF/IK incidents, MIT/MIV info).
+          3. **Team statistics moved.** \`df_st_1_{id}\` (SE period, SF section, SG label, SH/SI values).
+          4. **A GraphQL hash changed.** Lineups use \`dlie2\`, football player stats \`epmsd\` + \`epmsse\`, momentum \`mmts\` on 2.ds.lsapp.eu/pq_graphql. A changed hash returns 400/404, which the Actor reads as \"no data\".
+          5. **The box score moved.** Basketball and hockey player stats come from \`df_psn_1_{id}\` (PA sections, PF/PG columns, PC values).
+          6. **Team paging broke.** The Knicks check needs the team page's \`cjs.initialFeeds['results']\`, \`country_id\` / \`participant_id\` and the \`pr_{sport}_{country}_{team}_{page}_0_en_1\` feed.
+          7. **The feed sign changed and the refresh failed.** Feeds need \`x-fsign\`; on a 401 the client re-reads \`feed_sign\` from a match page.
+
+          - Workflow run: $WORKFLOW_URL
+          - Apify run: ${RUN_URL:-not started}
+
+          To reproduce locally:
+
+              apify call --build latest --json --input-file scripts/canary-input.json
+              apify datasets get-items <datasetId> --format json | node scripts/canary-check.mjs"
+
+          existing=$(gh issue list --label canary --state open --limit 1 --json number --jq '.[0].number // empty')
+          if [ -n "$existing" ]; then
+            gh issue comment "$existing" --body "$body"
+            echo "Commented on existing canary issue #$existing"
+          else
+            gh issue create \
+              --title "Canary failed: the deployed build stopped returning Flashscore match data" \
+              --label canary \
+              --body "$body"
+          fi

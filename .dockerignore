@@ -1,0 +1,28 @@
+# Never ship a host virtualenv into the image; the base image's own
+# site-packages is what pip install populates during the build.
+.venv
+venv
+__pycache__
+*.pyc
+
+.git
+.gitignore
+storage
+apify_storage
+
+test
+docs
+*.md
+!README.md
+
+.DS_Store
+*.log
+.env
+.idea
+.vscode
+
+# Repository tooling, not part of the Actor runtime.
+scripts
+requirements-dev.txt
+pytest.ini
+.pytest_cache

@@ -1,0 +1,17 @@
+# Pull-request checks. Pushes to main are covered by the beta workflow and
+# pushes to production by the deploy workflow, both of which run the same
+# reusable test job, so nothing is checked twice. Nothing here touches the
+# Apify platform, and it needs no secrets.
+name: CI
+
+on:
+  pull_request:
+    branches: [main, production]
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    uses: ./.github/workflows/tests.yml

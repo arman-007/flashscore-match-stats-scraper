@@ -1,0 +1,13 @@
+{
+  "actorOutputSchemaVersion": 1,
+  "title": "Scraped Flashscore match data",
+  "description": "One match row per match (score, incidents, team statistics, officials) and one player row per player (lineup entry with match stats), told apart by recordType.",
+  "properties": {
+    "dataset": {
+      "type": "string",
+      "title": "Results",
+      "description": "Dataset containing every scraped row.",
+      "template": "{{links.apiDefaultDatasetUrl}}/items"
+    }
+  }
+}

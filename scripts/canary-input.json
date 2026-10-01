@@ -1,0 +1,9 @@
+{
+  "matchUrls": ["https://www.flashscore.com/match/j52jHsN8/", "https://www.flashscore.com/match/pnOhtTOH/"],
+  "teamUrls": ["https://www.flashscore.com/team/new-york-knicks/WCNO4nbt/"],
+  "maxMatchesPerSource": 0,
+  "dateFrom": "2026-03-01",
+  "dateTo": "2026-03-10",
+  "include": ["statistics", "lineups", "playerStats", "missingPlayers", "momentum", "commentary", "headToHead"],
+  "maxItems": 1000
+}

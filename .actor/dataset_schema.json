@@ -1,0 +1,891 @@
+{
+  "actorSpecification": 1,
+  "fields": {
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "type": "object",
+    "properties": {
+      "recordType": {
+        "type": [
+          "string",
+          "null"
+        ],
+        "description": "`match`, `player`, or `error` for a diagnostic row (never charged).",
+        "nullable": true,
+        "example": "match"
+      },
+      "eventId": {
+        "type": [
+          "string",
+          "null"
+        ],
+        "description": "Flashscore's 8-character match id.",
+        "nullable": true,
+        "example": "j52jHsN8"
+      },
+      "url": {
+        "type": [
+          "string",
+          "null"
+        ],
+        "description": "Match page (match rows) or the URL an error row refers to.",
+        "nullable": true,
+        "example": "https://www.flashscore.com/match/j52jHsN8/"
+      },
+      "matchUrl": {
+        "type": [
+          "string",
+          "null"
+        ],
+        "description": "Player rows: the match page.",
+        "nullable": true,
+        "example": "https://www.flashscore.com/match/j52jHsN8/"
+      },
+      "sport": {
+        "type": [
+          "string",
+          "null"
+        ],
+        "description": "Sport slug.",
+        "nullable": true,
+        "example": "football"
+      },
+      "country": {
+        "type": [
+          "string",
+          "null"
+        ],
+        "description": "Country or region of the competition.",
+        "nullable": true,
+        "example": "England"
+      },
+      "competition": {
+        "type": [
+          "string",
+          "null"
+        ],
+        "description": "Competition name.",
+        "nullable": true,
+        "example": "Premier League"
+      },
+      "competitionUrl": {
+        "type": [
+          "string",
+          "null"
+        ],
+        "description": "Competition page.",
+        "nullable": true,
+        "example": "https://www.flashscore.com/football/england/premier-league/"
+      },
+      "round": {
+        "type": [
+          "string",
+          "null"
+        ],
+        "description": "Round or stage.",
+        "nullable": true,
+        "example": "Round 5"
+      },
+      "startTime": {
+        "type": [
+          "string",
+          "null"
+        ],
+        "description": "Kick-off, ISO 8601 UTC.",
+        "nullable": true,
+        "example": "2026-09-19T14:00:00Z"
+      },
+      "status": {
+        "type": [
+          "string",
+          "null"
+        ],
+        "description": "`finished`, `live`, `scheduled`, `postponed`, `cancelled`, `abandoned`, ...",
+        "nullable": true,
+        "example": "finished"
+      },
+      "decidedBy": {
+        "type": [
+          "string",
+          "null"
+        ],
+        "description": "`regular-time`, `extra-time`, `penalties` or `overtime`.",
+        "nullable": true,
+        "example": "regular-time"
+      },
+      "homeTeam": {
+        "type": [
+          "string",
+          "null"
+        ],
+        "description": "Home team (or first player in tennis).",
+        "nullable": true,
+        "example": "Brighton"
+      },
+      "homeTeamId": {
+        "type": [
+          "string",
+          "null"
+        ],
+        "description": "Home team id.",
+        "nullable": true,
+        "example": "2XrRecc3"
+      },
+      "homeTeamUrl": {
+        "type": [
+          "string",
+          "null"
+        ],
+        "description": "Home team page.",
+        "nullable": true,
+        "example": "https://www.flashscore.com/team/brighton/2XrRecc3/"
+      },
+      "awayTeam": {
+        "type": [
+          "string",
+          "null"
+        ],
+        "description": "Away team.",
+        "nullable": true,
+        "example": "Arsenal"
+      },
+      "awayTeamId": {
+        "type": [
+          "string",
+          "null"
+        ],
+        "description": "Away team id.",
+        "nullable": true,
+        "example": "hA1Zm19f"
+      },
+      "awayTeamUrl": {
+        "type": [
+          "string",
+          "null"
+        ],
+        "description": "Away team page.",
+        "nullable": true,
+        "example": "https://www.flashscore.com/team/arsenal/hA1Zm19f/"
+      },
+      "homeScore": {
+        "type": [
+          "integer",
+          "null"
+        ],
+        "description": "Home final score (sets won in tennis).",
+        "nullable": true,
+        "example": 3
+      },
+      "awayScore": {
+        "type": [
+          "integer",
+          "null"
+        ],
+        "description": "Away final score.",
+        "nullable": true,
+        "example": 0
+      },
+      "halfTimeScore": {
+        "type": [
+          "string",
+          "null"
+        ],
+        "description": "Football: score at half time.",
+        "nullable": true,
+        "example": "2-0"
+      },
+      "periodScores": {
+        "type": [
+          "array",
+          "null"
+        ],
+        "description": "Score per half, quarter, period or set (with tiebreak points in tennis).",
+        "nullable": true,
+        "example": [
+          {
+            "period": "1st Half",
+            "home": 2,
+            "away": 0
+          }
+        ]
+      },
+      "duration": {
+        "type": [
+          "string",
+          "null"
+        ],
+        "description": "Tennis: total match duration (h:mm).",
+        "nullable": true,
+        "example": "3:36"
+      },
+      "venue": {
+        "type": [
+          "string",
+          "null"
+        ],
+        "description": "Stadium or arena.",
+        "nullable": true,
+        "example": "Amex Stadium"
+      },
+      "city": {
+        "type": [
+          "string",
+          "null"
+        ],
+        "description": "Venue city.",
+        "nullable": true,
+        "example": "Brighton"
+      },
+      "attendance": {
+        "type": [
+          "integer",
+          "null"
+        ],
+        "description": "Spectators.",
+        "nullable": true,
+        "example": 31944
+      },
+      "capacity": {
+        "type": [
+          "integer",
+          "null"
+        ],
+        "description": "Venue capacity.",
+        "nullable": true,
+        "example": 31876
+      },
+      "referee": {
+        "type": [
+          "string",
+          "null"
+        ],
+        "description": "Main referee.",
+        "nullable": true,
+        "example": "England D."
+      },
+      "refereeCountry": {
+        "type": [
+          "string",
+          "null"
+        ],
+        "description": "Main referee's country code.",
+        "nullable": true,
+        "example": "Eng"
+      },
+      "referees": {
+        "type": [
+          "array",
+          "null"
+        ],
+        "description": "Every listed official with country.",
+        "nullable": true,
+        "example": [
+          {
+            "name": "England D.",
+            "country": "Eng"
+          }
+        ]
+      },
+      "homeFormation": {
+        "type": [
+          "string",
+          "null"
+        ],
+        "description": "Home formation (football), or `4 lines` in hockey.",
+        "nullable": true,
+        "example": "4-2-3-1"
+      },
+      "awayFormation": {
+        "type": [
+          "string",
+          "null"
+        ],
+        "description": "Away formation.",
+        "nullable": true,
+        "example": "4-2-3-1"
+      },
+      "homeCoach": {
+        "type": [
+          "string",
+          "null"
+        ],
+        "description": "Home coach.",
+        "nullable": true,
+        "example": "Hurzeler F."
+      },
+      "awayCoach": {
+        "type": [
+          "string",
+          "null"
+        ],
+        "description": "Away coach.",
+        "nullable": true,
+        "example": "Arteta M."
+      },
+      "homeAverageRating": {
+        "type": [
+          "number",
+          "null"
+        ],
+        "description": "Average Flashscore player rating of the home side.",
+        "nullable": true,
+        "example": 7.3
+      },
+      "awayAverageRating": {
+        "type": [
+          "number",
+          "null"
+        ],
+        "description": "Average Flashscore player rating of the away side.",
+        "nullable": true,
+        "example": 6.3
+      },
+      "incidents": {
+        "type": [
+          "array",
+          "null"
+        ],
+        "description": "Goals, cards, substitutions and penalties with minute, player, assist and running score.",
+        "nullable": true,
+        "example": [
+          {
+            "minute": "31'",
+            "type": "Goal",
+            "player": "Gross P."
+          }
+        ]
+      },
+      "statistics": {
+        "type": [
+          "array",
+          "null"
+        ],
+        "description": "Team statistics per period: xG, possession, shots, passes ... with display and made/attempted values.",
+        "nullable": true,
+        "example": [
+          {
+            "period": "Match",
+            "stat": "Expected goals (xG)",
+            "home": 1.31,
+            "away": 1.63
+          }
+        ]
+      },
+      "missingPlayers": {
+        "type": [
+          "array",
+          "null"
+        ],
+        "description": "Injured or suspended players with reason and availability.",
+        "nullable": true,
+        "example": [
+          {
+            "side": "home",
+            "player": "Azeez F.",
+            "reason": "Abdominal strain"
+          }
+        ]
+      },
+      "momentum": {
+        "type": [
+          "array",
+          "null"
+        ],
+        "description": "Football: per-minute momentum, positive = home pressure, negative = away.",
+        "nullable": true,
+        "example": [
+          {
+            "minute": "1'",
+            "value": 0.0424
+          }
+        ]
+      },
+      "commentary": {
+        "type": [
+          "array",
+          "null"
+        ],
+        "description": "Text commentary, oldest first.",
+        "nullable": true,
+        "example": [
+          {
+            "minute": "31'",
+            "text": "Goal! ..."
+          }
+        ]
+      },
+      "headToHead": {
+        "type": [
+          "object",
+          "null"
+        ],
+        "description": "Both sides' last matches and previous meetings, as Flashscore shows them today.",
+        "nullable": true,
+        "example": {
+          "meetings": []
+        }
+      },
+      "side": {
+        "type": [
+          "string",
+          "null"
+        ],
+        "description": "Player rows: `home` or `away`.",
+        "nullable": true,
+        "example": "home"
+      },
+      "team": {
+        "type": [
+          "string",
+          "null"
+        ],
+        "description": "Player rows: the player's team.",
+        "nullable": true,
+        "example": "Brighton"
+      },
+      "teamId": {
+        "type": [
+          "string",
+          "null"
+        ],
+        "description": "Player rows: team id.",
+        "nullable": true,
+        "example": "2XrRecc3"
+      },
+      "opponent": {
+        "type": [
+          "string",
+          "null"
+        ],
+        "description": "Player rows: the opponent.",
+        "nullable": true,
+        "example": "Arsenal"
+      },
+      "opponentId": {
+        "type": [
+          "string",
+          "null"
+        ],
+        "description": "Player rows: opponent id.",
+        "nullable": true,
+        "example": "hA1Zm19f"
+      },
+      "player": {
+        "type": [
+          "string",
+          "null"
+        ],
+        "description": "Player name.",
+        "nullable": true,
+        "example": "Gross P."
+      },
+      "playerId": {
+        "type": [
+          "string",
+          "null"
+        ],
+        "description": "Flashscore's 8-character player id.",
+        "nullable": true,
+        "example": "trpxfbO3"
+      },
+      "playerUrl": {
+        "type": [
+          "string",
+          "null"
+        ],
+        "description": "Player page.",
+        "nullable": true,
+        "example": "https://www.flashscore.com/player/gross-pascal/trpxfbO3/"
+      },
+      "shirtNumber": {
+        "type": [
+          "integer",
+          "null"
+        ],
+        "description": "Shirt number.",
+        "nullable": true,
+        "example": 13
+      },
+      "nationality": {
+        "type": [
+          "string",
+          "null"
+        ],
+        "description": "Player nationality.",
+        "nullable": true,
+        "example": "Germany"
+      },
+      "position": {
+        "type": [
+          "string",
+          "null"
+        ],
+        "description": "Football: position from the player-stats feed.",
+        "nullable": true,
+        "example": "Midfielder"
+      },
+      "isGoalkeeper": {
+        "type": [
+          "boolean",
+          "null"
+        ],
+        "description": "Goalkeeper (or hockey goalie).",
+        "nullable": true,
+        "example": false
+      },
+      "isCaptain": {
+        "type": [
+          "boolean",
+          "null"
+        ],
+        "description": "Captain.",
+        "nullable": true,
+        "example": false
+      },
+      "starter": {
+        "type": [
+          "boolean",
+          "null"
+        ],
+        "description": "In the starting lineup.",
+        "nullable": true,
+        "example": true
+      },
+      "played": {
+        "type": [
+          "boolean",
+          "null"
+        ],
+        "description": "Took part in the match (starters and used substitutes).",
+        "nullable": true,
+        "example": true
+      },
+      "lineupGroup": {
+        "type": [
+          "string",
+          "null"
+        ],
+        "description": "Lineup group: `Starting Lineups`, `Substitutes`, or the hockey line.",
+        "nullable": true,
+        "example": "Starting Lineups"
+      },
+      "subbedInMinute": {
+        "type": [
+          "integer",
+          "null"
+        ],
+        "description": "Minute the player came on.",
+        "nullable": true,
+        "example": 62
+      },
+      "subbedOutMinute": {
+        "type": [
+          "integer",
+          "null"
+        ],
+        "description": "Minute the player went off.",
+        "nullable": true,
+        "example": 78
+      },
+      "rating": {
+        "type": [
+          "number",
+          "null"
+        ],
+        "description": "Flashscore player rating.",
+        "nullable": true,
+        "example": 8.4
+      },
+      "isBestRating": {
+        "type": [
+          "boolean",
+          "null"
+        ],
+        "description": "Football: the match's best-rated player.",
+        "nullable": true,
+        "example": true
+      },
+      "minutesPlayed": {
+        "type": [
+          "number",
+          "null"
+        ],
+        "description": "Minutes played (basketball: decimal minutes, 39.2 = 39:12).",
+        "nullable": true,
+        "example": 90
+      },
+      "goals": {
+        "type": [
+          "integer",
+          "null"
+        ],
+        "description": "Goals.",
+        "nullable": true,
+        "example": 1
+      },
+      "assists": {
+        "type": [
+          "integer",
+          "null"
+        ],
+        "description": "Assists.",
+        "nullable": true,
+        "example": 0
+      },
+      "expectedGoals": {
+        "type": [
+          "number",
+          "null"
+        ],
+        "description": "Football: xG.",
+        "nullable": true,
+        "example": 0.38
+      },
+      "expectedAssists": {
+        "type": [
+          "number",
+          "null"
+        ],
+        "description": "Football: xA.",
+        "nullable": true,
+        "example": 0.05
+      },
+      "points": {
+        "type": [
+          "integer",
+          "null"
+        ],
+        "description": "Basketball/hockey: points.",
+        "nullable": true,
+        "example": 12
+      },
+      "rebounds": {
+        "type": [
+          "integer",
+          "null"
+        ],
+        "description": "Basketball: rebounds.",
+        "nullable": true,
+        "example": 7
+      },
+      "timeOnIce": {
+        "type": [
+          "number",
+          "null"
+        ],
+        "description": "Hockey: decimal minutes on ice.",
+        "nullable": true,
+        "example": 19.5
+      },
+      "saves": {
+        "type": [
+          "integer",
+          "null"
+        ],
+        "description": "Saves (football keepers, hockey goalies).",
+        "nullable": true,
+        "example": 31
+      },
+      "error": {
+        "type": [
+          "string",
+          "null"
+        ],
+        "description": "Error rows: `INVALID_INPUT`, `MATCH_NOT_FOUND`, `SOURCE_NOT_FOUND`, `NO_MATCHES`.",
+        "nullable": true,
+        "example": "MATCH_NOT_FOUND"
+      },
+      "errorMessage": {
+        "type": [
+          "string",
+          "null"
+        ],
+        "description": "Error rows: what went wrong and how to fix it.",
+        "nullable": true,
+        "example": "Flashscore has no match abcdefgh (not charged)."
+      }
+    }
+  },
+  "views": {
+    "matches": {
+      "title": "Matches",
+      "description": "One row per match: score, venue, officials and formations.",
+      "transformation": {
+        "fields": [
+          "startTime",
+          "competition",
+          "round",
+          "homeTeam",
+          "homeScore",
+          "awayScore",
+          "awayTeam",
+          "halfTimeScore",
+          "status",
+          "venue",
+          "attendance",
+          "referee",
+          "homeFormation",
+          "awayFormation",
+          "url"
+        ]
+      },
+      "display": {
+        "component": "table",
+        "properties": {
+          "startTime": {
+            "label": "Start",
+            "format": "date"
+          },
+          "competition": {
+            "label": "Competition",
+            "format": "text"
+          },
+          "round": {
+            "label": "Round",
+            "format": "text"
+          },
+          "homeTeam": {
+            "label": "Home",
+            "format": "text"
+          },
+          "homeScore": {
+            "label": "H",
+            "format": "number"
+          },
+          "awayScore": {
+            "label": "A",
+            "format": "number"
+          },
+          "awayTeam": {
+            "label": "Away",
+            "format": "text"
+          },
+          "halfTimeScore": {
+            "label": "HT",
+            "format": "text"
+          },
+          "status": {
+            "label": "Status",
+            "format": "text"
+          },
+          "venue": {
+            "label": "Venue",
+            "format": "text"
+          },
+          "attendance": {
+            "label": "Attendance",
+            "format": "number"
+          },
+          "referee": {
+            "label": "Referee",
+            "format": "text"
+          },
+          "homeFormation": {
+            "label": "Home formation",
+            "format": "text"
+          },
+          "awayFormation": {
+            "label": "Away formation",
+            "format": "text"
+          },
+          "url": {
+            "label": "URL",
+            "format": "link"
+          }
+        }
+      }
+    },
+    "players": {
+      "title": "Players",
+      "description": "One row per player per match: lineup entry with the key stats.",
+      "transformation": {
+        "fields": [
+          "startTime",
+          "team",
+          "opponent",
+          "shirtNumber",
+          "player",
+          "position",
+          "starter",
+          "minutesPlayed",
+          "rating",
+          "goals",
+          "assists",
+          "expectedGoals",
+          "points",
+          "subbedInMinute",
+          "subbedOutMinute",
+          "playerUrl"
+        ]
+      },
+      "display": {
+        "component": "table",
+        "properties": {
+          "startTime": {
+            "label": "Start",
+            "format": "date"
+          },
+          "team": {
+            "label": "Team",
+            "format": "text"
+          },
+          "opponent": {
+            "label": "Opponent",
+            "format": "text"
+          },
+          "shirtNumber": {
+            "label": "#",
+            "format": "number"
+          },
+          "player": {
+            "label": "Player",
+            "format": "text"
+          },
+          "position": {
+            "label": "Position",
+            "format": "text"
+          },
+          "starter": {
+            "label": "Starter",
+            "format": "boolean"
+          },
+          "minutesPlayed": {
+            "label": "Min",
+            "format": "number"
+          },
+          "rating": {
+            "label": "Rating",
+            "format": "number"
+          },
+          "goals": {
+            "label": "Goals",
+            "format": "number"
+          },
+          "assists": {
+            "label": "Assists",
+            "format": "number"
+          },
+          "expectedGoals": {
+            "label": "xG",
+            "format": "number"
+          },
+          "points": {
+            "label": "Pts",
+            "format": "number"
+          },
+          "subbedInMinute": {
+            "label": "On",
+            "format": "number"
+          },
+          "subbedOutMinute": {
+            "label": "Off",
+            "format": "number"
+          },
+          "playerUrl": {
+            "label": "URL",
+            "format": "link"
+          }
+        }
+      }
+    }
+  }
+}

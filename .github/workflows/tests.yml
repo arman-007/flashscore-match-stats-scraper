@@ -1,0 +1,39 @@
+# The single definition of "does this code pass". Both the CI workflow and the
+# deploy workflows call this one, so what guards a pull request and what guards
+# a production release can never drift apart.
+name: Tests
+
+on:
+  workflow_call:
+
+jobs:
+  test:
+    name: Unit tests & schema validation
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-python@v7
+        with:
+          # Matches apify/actor-python:3.13, the image the Actor actually runs on.
+          python-version: "3.13"
+          cache: pip
+
+      - name: Install dependencies
+        run: pip install -r requirements-dev.txt
+
+      - name: Run tests
+        run: python -m pytest -q
+
+      # Validates the input, dataset and output schemas from .actor/actor.json.
+      # A malformed schema still builds fine on the platform and only shows up
+      # later as a broken Console tab or a publication check that refuses to go
+      # green, so it is cheaper to catch it here.
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+
+      - name: Validate Actor schemas
+        run: npx --yes apify-cli@1 validate-schema
