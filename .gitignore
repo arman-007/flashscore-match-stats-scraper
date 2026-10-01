@@ -5,6 +5,7 @@ venv/
 .pytest_cache/
 .ruff_cache/
 
+temp_auto_push.bat
 storage/
 apify_storage/
 
@@ -12,5 +13,6 @@ apify_storage/
 .DS_Store
 *.log
 .idea/
-.vscode/
 probe/
+.gitignore
+branch_structure.json
